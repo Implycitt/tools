@@ -6,7 +6,6 @@ import (
 )
 
 func main() {
-	tools.Hello()
 }
 
 func copyTemplate(template string) {

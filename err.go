@@ -11,7 +11,3 @@ func Check(err error) {
 		os.Exit(1)
 	}
 }
-
-func Hello() {
-	fmt.Println("hello world")
-}
