@@ -1,11 +1,13 @@
-package main
+package template
 
 import (
+	"fmt"
 	"os"
-	"tools"
+	"tooling"
 )
 
 func main() {
+	fmt.println
 }
 
 func copyTemplate(template string) {
