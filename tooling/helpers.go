@@ -1,13 +1,13 @@
 package tooling
 
 import (
-	"fmt"
-	"os"
-	"net/http"
-	"io"
-	"runtime"
 	"archive/zip"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -24,8 +24,13 @@ func Panic(err error) {
 	}
 }
 
-func DownloadFile(filepath string, url string) (err error) {
-	out, err := os.Create(filepath)
+func DownloadFile(filePath string, url string) (err error) {
+	var file = "quickView.zip"
+	if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+		panic(err)
+	}
+
+	out, err := os.Create(filePath + file)
 	Check(err)
 	defer out.Close()
 
@@ -41,15 +46,13 @@ func DownloadFile(filepath string, url string) (err error) {
 }
 
 func Unzip(file string, destFolder string) {
-	destination := ConstructPath(destFolder)
-
-	archive, err := zip.OpenReader(file)
+	archive, err := zip.OpenReader(destFolder + file)
 	Panic(err)
 	defer archive.Close()
 
 	for _, f := range archive.File {
-		filePath := filepath.Join(destination, f.Name)
-		if !strings.HasPrefix(filePath, filepath.Clean(destination)+string(os.PathSeparator)) {
+		filePath := filepath.Join(destFolder, f.Name)
+		if !strings.HasPrefix(filePath, filepath.Clean(destFolder)+string(os.PathSeparator)) {
 			fmt.Println("Invalid Path")
 			return
 		}
@@ -59,7 +62,9 @@ func Unzip(file string, destFolder string) {
 			continue
 		}
 
-		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil { panic(err) }
+		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+			panic(err)
+		}
 
 		destinationFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		Panic(err)
@@ -69,7 +74,9 @@ func Unzip(file string, destFolder string) {
 		Panic(err)
 		defer fileInArchive.Close()
 
-		if _, err := io.Copy(destinationFile, fileInArchive); err != nil { panic(err) }
+		if _, err := io.Copy(destinationFile, fileInArchive); err != nil {
+			panic(err)
+		}
 	}
 
 }
@@ -79,23 +86,29 @@ func ConstructPath(destFolder string) (destination string) {
 
 	switch opsys := runtime.GOOS; opsys {
 	case "windows":
-		dest = "C:\\Tooling"
+		dest = "C:\\Tooling\\" + destFolder + "\\"
 	case "linux":
-		dest = "/Tooling/"
+		dest = "/Tooling/" + destFolder + "/"
 	case "darwin":
-		dest = "/Tooling/"
+		dest = "/Tooling/" + destFolder + "/"
 	default:
 		dest = ""
 	}
-	dest += destFolder
 
 	return dest
 }
 
-func ClearPath(destination string) (err error){
+func ClearPath(destination string) (err error) {
 	err = os.RemoveAll(destination)
 	Check(err)
 
 	err = os.MkdirAll(destination, 0755)
 	return err
+}
+
+func FileExists(filename string) bool {
+	if _, err := os.Stat(filename); err == nil {
+		return true
+	}
+	return false
 }

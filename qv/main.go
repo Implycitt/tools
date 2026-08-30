@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"tooling"
 )
@@ -13,8 +14,7 @@ func main() {
 	var absPath string
 	var err error
 
-	const quickView = "quickView"
-	const qvDownloadURL = "https://github.com/Implycitt/quickView/releases/tag/v1.0.0"
+	var qvDownloadURL = GetDownloadURL()
 
 	if len(os.Args) == 1 {
 		files, err := os.ReadDir(".")
@@ -30,14 +30,14 @@ func main() {
 		absPath, err = filepath.Abs(path)
 
 		ext := strings.ToLower(filepath.Ext(absPath))
-		if ext == ".md" || ext == ".pdf" {
+		if ext != ".md" && ext != ".pdf" {
 			fmt.Println("Error: Unsupported file type")
 			os.Exit(1)
 		}
 	} else {
-	 	fmt.Println("Usage: qv <file.md | file.pdf>")
+		fmt.Println("Usage: qv <file.md | file.pdf>")
 		os.Exit(1)
-	} 
+	}
 	tooling.Check(err)
 
 	stat, err := os.Stat(absPath)
@@ -46,15 +46,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	destination := tooling.ConstructPath(quickView)
-	err = tooling.DownloadFile(destination, qvDownloadURL)
-	tooling.Check(err)
+	destination := tooling.ConstructPath("quickView")
 
-	commandFile := tooling.Unzip("quickView.zip", destination)
-	cmd := exec.Command(commandFile, absPath)
+	if !tooling.FileExists(destination) {
+		err = tooling.DownloadFile(destination, qvDownloadURL)
+		tooling.Check(err)
 
+		tooling.Unzip("quickView.zip", destination)
+	}
+
+	cmd := exec.Command(destination+"quickView.exe", absPath)
 	err = cmd.Start()
 	tooling.Check(err)
+}
 
-	fmt.Printf("Opening %s in QuickView\n", filepath.Base(absPath))
+func GetDownloadURL() (url string) {
+	switch opsys := runtime.GOOS; opsys {
+	case "windows":
+		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.0/QuickView-1.0.0-win.zip"
+	case "linux":
+		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.0/QuickView-1.0.0.zip"
+	case "darwin":
+		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.0/QuickView-1.0.0-arm64-mac.zip"
+	default:
+		url = ""
+	}
+	return url
 }
