@@ -60,14 +60,15 @@ func main() {
 	tooling.Check(err)
 }
 
+// just going to have to manually update the versions if there are any future changes.
 func GetDownloadURL() (url string) {
 	switch opsys := runtime.GOOS; opsys {
 	case "windows":
-		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.0/QuickView-1.0.0-win.zip"
+		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1-win.zip"
 	case "linux":
-		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.0/QuickView-1.0.0.zip"
+		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1.zip"
 	case "darwin":
-		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.0/QuickView-1.0.0-arm64-mac.zip"
+		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1-arm64-mac.zip"
 	default:
 		url = ""
 	}
