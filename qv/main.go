@@ -55,7 +55,17 @@ func main() {
 		tooling.Unzip("quickView.zip", destination)
 	}
 
-	cmd := exec.Command(destination+"quickView.exe", absPath)
+	var argument string
+	switch opsys := runtime.GOOS; opsys {
+	case "windows":
+		argument = destination+"quickView.exe"
+	case "linux":
+		argument = destination+"quickview"
+	default:
+		argument = ""
+	}
+
+	cmd := exec.Command(argument, absPath)
 	err = cmd.Start()
 	tooling.Check(err)
 }
@@ -67,8 +77,6 @@ func GetDownloadURL() (url string) {
 		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1-win.zip"
 	case "linux":
 		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1.zip"
-	case "darwin":
-		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1-arm64-mac.zip"
 	default:
 		url = ""
 	}
