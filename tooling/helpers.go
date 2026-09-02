@@ -81,21 +81,26 @@ func Unzip(file string, destFolder string) {
 
 }
 
-func ConstructPath(destFolder string) (destination string) {
+func Construct(destFolder string) (string, string) {
 	var dest string
+	var file string
 
 	switch opsys := runtime.GOOS; opsys {
 	case "windows":
 		dest = "C:\\Tooling\\" + destFolder + "\\"
+		file = dest + "quickView.exe"
 	case "linux":
 		dest = "/Tooling/" + destFolder + "/"
+		file = dest + "quickview"
 	case "darwin":
 		dest = "/Tooling/" + destFolder + "/"
+		file = dest + "QuickView.app"
 	default:
 		dest = ""
+		file = ""
 	}
 
-	return dest
+	return dest, file
 }
 
 func ClearPath(destination string) (err error) {

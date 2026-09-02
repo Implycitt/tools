@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -18,27 +19,33 @@ type Release struct {
 }
 
 func main() {
-	var absPath string
+	var absPath string = ""
 	var err error
 
 	var qvDownloadURL = GetDownloadURL()
+	clear := flag.Bool("clear", false, "clear directory")
 
-	if len(os.Args) == 1 {
+	flag.Parse()
+	args := flag.Args()
+
+	if len(args) == 0 {
 		files, err := os.ReadDir(".")
 		tooling.Check(err)
+
 		for _, file := range files {
 			ext := strings.ToLower(filepath.Ext(file.Name()))
 			if ext == ".md" || ext == ".pdf" {
 				absPath, err = filepath.Abs(file.Name())
+				break
 			}
 		}
-	} else if len(os.Args) == 2 {
-		path := os.Args[1]
-		absPath, err = filepath.Abs(path)
+	} else if len(args) == 1 {
+		absPath, err = filepath.Abs(args[0])
+		tooling.Check(err)
 
 		ext := strings.ToLower(filepath.Ext(absPath))
 		if ext != ".md" && ext != ".pdf" {
-			fmt.Println("Error: Unsupported file type")
+			fmt.Println("Error: Unsupported file type. Must be .md or .pdf")
 			os.Exit(1)
 		}
 	} else {
@@ -53,26 +60,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	destination := tooling.ConstructPath("quickView")
+	destination, file := tooling.Construct("quickView")
 
-	if !tooling.FileExists(destination) {
+	if *clear {
+		tooling.ClearPath(destination)
+	}
+
+	if !tooling.FileExists(file) {
 		err = tooling.DownloadFile(destination, qvDownloadURL)
 		tooling.Check(err)
 
 		tooling.Unzip("quickView.zip", destination)
 	}
 
-	var argument string
-	switch opsys := runtime.GOOS; opsys {
-	case "windows":
-		argument = destination+"quickView.exe"
-	case "linux":
-		argument = destination+"quickview"
-	default:
-		argument = ""
-	}
-
-	cmd := exec.Command(argument, absPath)
+	cmd := exec.Command(file, absPath)
 	err = cmd.Start()
 	tooling.Check(err)
 }
