@@ -1,1 +1,5 @@
+# compiled binaries and executables
+
 *.exe
+*.out
+*.bin

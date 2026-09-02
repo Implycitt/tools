@@ -7,11 +7,11 @@ import (
 )
 
 func main() {
-	fmt.println
+	fmt.Println("")
 }
 
 func copyTemplate(template string) {
 	srcFile, err := os.Open(template)
-	tools.Check(err)
+	tooling.Check(err)
 	defer srcFile.Close()
 }

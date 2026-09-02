@@ -1,14 +1,21 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 	"tooling"
 )
+
+type Release struct {
+	TagName string `json:"tag_name"`
+}
 
 func main() {
 	var absPath string
@@ -70,15 +77,47 @@ func main() {
 	tooling.Check(err)
 }
 
-// just going to have to manually update the versions if there are any future changes.
 func GetDownloadURL() (url string) {
+	release, err := GetRecentTag()
+	tooling.Check(err)
+	tagName := release.TagName[1:]
+
 	switch opsys := runtime.GOOS; opsys {
 	case "windows":
-		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1-win.zip"
+		url = fmt.Sprintf("https://github.com/Implycitt/quickView/releases/download/v%[1]s/QuickView-%[1]s-win.zip", tagName)
 	case "linux":
-		url = "https://github.com/Implycitt/quickView/releases/download/v1.0.1/QuickView-1.0.1.zip"
+		url = fmt.Sprintf("https://github.com/Implycitt/quickView/releases/download/v%[1]s/QuickView-%[1]s.zip", tagName)
+	case "darwin":
+		url = fmt.Sprintf("https://github.com/Implycitt/quickView/releases/download/v%[1]s/QuickView-%[1]s-arm64-mac.zip", tagName)
 	default:
 		url = ""
 	}
 	return url
+}
+
+func GetRecentTag() (*Release, error) {
+	var apiUrl string = "https://api.github.com/repos/Implycitt/quickView/releases/latest"
+	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	tooling.Check(err)
+
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+	client := &http.Client{Timeout: 10 * time.Second}
+
+	resp, err := client.Do(req)
+	tooling.Check(err)
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("No releases found")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API Failure: %d", resp.StatusCode)
+	}
+
+	var release Release
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return nil, fmt.Errorf("Failed to decode: %w", err)
+	}
+
+	return &release, nil
 }
