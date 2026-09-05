@@ -6,4 +6,3 @@ func main() {
   addFlags(config)
   download(config)
 }
-

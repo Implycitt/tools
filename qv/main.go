@@ -1,22 +1,14 @@
-package main
+package qv
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"time"
 	"tooling"
 )
-
-type Release struct {
-	TagName string `json:"tag_name"`
-}
 
 func main() {
 	var absPath string = ""
@@ -60,14 +52,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	destination, file := tooling.Construct("quickView")
+	destination, file := Construct("quickView")
 
 	if *clear {
 		tooling.ClearPath(destination)
 	}
 
 	if !tooling.FileExists(file) {
-		err = tooling.DownloadFile(destination, qvDownloadURL)
+		err = tooling.DownloadFile(destination, qvDownloadURL, "quickView.zip")
 		tooling.Check(err)
 
 		tooling.Unzip("quickView.zip", destination)
@@ -76,49 +68,4 @@ func main() {
 	cmd := exec.Command(file, absPath)
 	err = cmd.Start()
 	tooling.Check(err)
-}
-
-func GetDownloadURL() (url string) {
-	release, err := GetRecentTag()
-	tooling.Check(err)
-	tagName := release.TagName[1:]
-
-	switch opsys := runtime.GOOS; opsys {
-	case "windows":
-		url = fmt.Sprintf("https://github.com/Implycitt/quickView/releases/download/v%[1]s/QuickView-%[1]s-win.zip", tagName)
-	case "linux":
-		url = fmt.Sprintf("https://github.com/Implycitt/quickView/releases/download/v%[1]s/QuickView-%[1]s.zip", tagName)
-	case "darwin":
-		url = fmt.Sprintf("https://github.com/Implycitt/quickView/releases/download/v%[1]s/QuickView-%[1]s-arm64-mac.zip", tagName)
-	default:
-		url = ""
-	}
-	return url
-}
-
-func GetRecentTag() (*Release, error) {
-	var apiUrl string = "https://api.github.com/repos/Implycitt/quickView/releases/latest"
-	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
-	tooling.Check(err)
-
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	client := &http.Client{Timeout: 10 * time.Second}
-
-	resp, err := client.Do(req)
-	tooling.Check(err)
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("No releases found")
-	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API Failure: %d", resp.StatusCode)
-	}
-
-	var release Release
-	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return nil, fmt.Errorf("Failed to decode: %w", err)
-	}
-
-	return &release, nil
 }

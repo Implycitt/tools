@@ -2,8 +2,6 @@ package template
 
 import (
 	"fmt"
-	"os"
-	"tooling"
 )
 
 func main() {
@@ -11,7 +9,4 @@ func main() {
 }
 
 func copyTemplate(template string) {
-	srcFile, err := os.Open(template)
-	tooling.Check(err)
-	defer srcFile.Close()
 }

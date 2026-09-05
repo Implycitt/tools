@@ -4,4 +4,7 @@ use (
 	./qv
 	./tooling
 	./template
+	./hack
+	./aoc
+	./cf
 )
