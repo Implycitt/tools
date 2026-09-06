@@ -11,9 +11,8 @@ import (
 )
 
 func DownloadFile(filePath string, url string, file string) (err error) {
-	if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-		panic(err)
-	}
+	err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
+	Panic(err)
 
 	out, err := os.Create(filePath + file)
 	Check(err)

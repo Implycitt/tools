@@ -1,4 +1,4 @@
-package aoc
+package main
 
 func main() {
   config, err := defaultConfig()

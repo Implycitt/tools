@@ -1,4 +1,4 @@
-package qv
+package main
 
 import (
 	"flag"
