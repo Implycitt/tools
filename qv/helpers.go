@@ -16,10 +16,10 @@ func Construct(destFolder string) (string, string) {
 		dest = "C:\\Tooling\\" + destFolder + "\\"
 		file = dest + "QuickView.exe"
 	case "linux":
-		dest = "/Tooling/" + destFolder + "/"
+		dest = os.Getenv("HOME") + "/Tooling/" + destFolder + "/"
 		file = dest + "quickview"
 	case "darwin":
-		dest = os.Getenv("HOME") + "/Tooling/" + destFolder + "/"
+		dest = "/Tooling/" + destFolder + "/"
 		file = dest + "QuickView.app"
 	default:
 		dest = ""
