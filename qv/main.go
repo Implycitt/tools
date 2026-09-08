@@ -13,8 +13,8 @@ import (
 func main() {
 	var absPath string = ""
 	var err error
+	var qvDownloadURL string
 
-	var qvDownloadURL = GetDownloadURL()
 	clear := flag.Bool("clear", false, "clear directory")
 
 	flag.Parse()
@@ -59,6 +59,7 @@ func main() {
 	}
 
 	if !tooling.FileExists(file) {
+		qvDownloadURL = GetDownloadURL()
 		err = tooling.DownloadFile(destination, qvDownloadURL, "quickView.zip")
 		tooling.Check(err)
 

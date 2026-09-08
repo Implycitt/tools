@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"tooling"
 )
@@ -13,12 +14,12 @@ func Construct(destFolder string) (string, string) {
 	switch opsys := runtime.GOOS; opsys {
 	case "windows":
 		dest = "C:\\Tooling\\" + destFolder + "\\"
-		file = dest + "quickView.exe"
+		file = dest + "QuickView.exe"
 	case "linux":
 		dest = "/Tooling/" + destFolder + "/"
 		file = dest + "quickview"
 	case "darwin":
-		dest = "/Tooling/" + destFolder + "/"
+		dest = os.Getenv("HOME") + "/Tooling/" + destFolder + "/"
 		file = dest + "QuickView.app"
 	default:
 		dest = ""
