@@ -3,3 +3,7 @@
 *.exe
 *.out
 *.bin
+
+# personal binary
+qv
+!qv/

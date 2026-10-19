@@ -26,7 +26,7 @@ func main() {
 
 		for _, file := range files {
 			ext := strings.ToLower(filepath.Ext(file.Name()))
-			if ext == ".md" || ext == ".pdf" {
+			if ext == ".md" || ext == ".pdf" || ext == ".html" || ext == "htm"{
 				absPath, err = filepath.Abs(file.Name())
 				break
 			}
@@ -36,12 +36,12 @@ func main() {
 		tooling.Check(err)
 
 		ext := strings.ToLower(filepath.Ext(absPath))
-		if ext != ".md" && ext != ".pdf" {
-			fmt.Println("Error: Unsupported file type. Must be .md or .pdf")
+		if ext != ".md" && ext != ".pdf" && ext != ".html" && ext != ".htm" {
+			fmt.Println("Error: Unsupported file type. Must be .md, .pdf, .html, or .htm")
 			os.Exit(1)
 		}
 	} else {
-		fmt.Println("Usage: qv <file.md | file.pdf>")
+		fmt.Println("Usage: qv <file.md | file.pdf> | file.html | file.htm")
 		os.Exit(1)
 	}
 	tooling.Check(err)
