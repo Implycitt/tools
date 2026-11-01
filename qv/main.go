@@ -15,7 +15,7 @@ func main() {
 	var err error
 	var qvDownloadURL string
 
-	clear := flag.Bool("clear", false, "clear directory")
+	update := flag.Bool("update", false, "update tooling")
 
 	flag.Parse()
 	args := flag.Args()
@@ -54,7 +54,7 @@ func main() {
 
 	destination, file := Construct("quickView")
 
-	if *clear {
+	if *update {
 		tooling.ClearPath(destination)
 	}
 
